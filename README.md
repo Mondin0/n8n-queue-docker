@@ -52,8 +52,9 @@ Este proyecto ofrece una implementación de **N8N en modo QUEUE** totalmente con
 El archivo `docker-compose.yml` incluye tres servicios principales:
 
 - **n8n**: Configurado en modo QUEUE para procesamiento optimizado de flujos
-- **mariadb**: Base de datos para almacenar configuraciones y datos de N8N
-- **phpmyadmin**: Interfaz web opcional para administrar la base de datos
+- **Postgres DB**: Base de datos de persistencia de n8n
+- **Redis**: base de datos en memoria para asignar tareas a los workers
+- **1 worker n8n**: ejecutor de los workflows
 
 ## 🔄 Uso
 
