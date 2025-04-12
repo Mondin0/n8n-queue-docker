@@ -49,7 +49,7 @@ Este proyecto ofrece una implementación de **N8N en modo QUEUE** totalmente con
 
 ## ⚙️ Configuración
 
-El archivo `docker-compose.yml` incluye tres servicios principales:
+El archivo `docker-compose.yml` incluye cuatro servicios principales:
 
 - **n8n**: Configurado en modo QUEUE para procesamiento optimizado de flujos
 - **Postgres DB**: Base de datos de persistencia de n8n
