@@ -1,0 +1,85 @@
+volumes:
+  db_storage:
+  n8n_storage:
+  redis_storage:
+  mariadb_data_n8n:
+
+x-shared: &shared
+  restart: always
+  image: n8nio/n8n:latest
+  environment:
+    - DB_TYPE=postgresdb
+    - DB_POSTGRESDB_HOST=postgres
+    - DB_POSTGRESDB_PORT=${POSTGRESDB_PORT}
+    - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+    - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
+    - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+    - EXECUTIONS_MODE
+    - QUEUE_BULL_REDIS_HOST
+    - QUEUE_HEALTH_CHECK_ACTIVE
+    - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS
+    - N8N_RUNNERS_ENABLED
+    - N8N_METRICS
+    - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS
+    - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    - WEBHOOK_URL
+    - N8N_PROTOCOL
+    - N8N_HOST
+    - GENERIC_TIMEZONE
+    - N8N_BASIC_AUTH_ACTIVE
+    - N8N_BASIC_AUTH_USER
+    - N8N_BASIC_AUTH_PASSWORD
+      #en desarrollo esta en falso, pero en prod debe estar en true por seguridad
+    - N8N_SECURE_COOKIE       
+  links:
+    - postgres
+    - redis
+  volumes:
+    - n8n_storage:/home/node/.n8n
+  depends_on:
+    redis:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_NON_ROOT_USER
+      - POSTGRES_NON_ROOT_PASSWORD
+    volumes:
+      - db_storage:/var/lib/postgresql/data
+      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    #image: redis:6-alpine
+    image: redis:latest
+    restart: always
+    volumes:
+      - redis_storage:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  n8n:
+    <<: *shared
+    ports:
+      - 5678:5678
+
+  n8n-worker:
+    <<: *shared
+    command: worker
+    depends_on:
+      - n8n
