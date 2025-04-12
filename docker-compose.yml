@@ -62,8 +62,8 @@ services:
       retries: 10
 
   redis:
-    #image: redis:6-alpine
-    image: redis:latest
+    image: redis:6-alpine
+    #image: redis:latest
     restart: always
     volumes:
       - redis_storage:/data
