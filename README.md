@@ -56,6 +56,13 @@ El archivo `docker-compose.yml` incluye cuatro servicios principales:
 - **Redis**: base de datos en memoria para asignar tareas a los workers
 - **1 worker n8n**: ejecutor de los workflows
 
+Por si no te funciona la inicializacion en windows, podes correr el comando de ininicializacion de la base de datos automaticamente con este comando:
+
+```bash
+bash
+docker exec -it my_postgres psql -U changeUser -d n8n -c "CREATE USER changeUser WITH PASSWORD 'changePassword'; GRANT ALL PRIVILEGES ON DATABASE n8n TO changeUser; GRANT CREATE ON SCHEMA public TO changeUser;"
+```
+
 ## 🔄 Uso
 
 Una vez iniciados los servicios, puedes acceder a:

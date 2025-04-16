@@ -44,6 +44,7 @@ x-shared: &shared
 
 services:
   postgres:
+    container_name: postgresn8n
     image: postgres:latest
     restart: always
     environment:
@@ -81,5 +82,14 @@ services:
   n8n-worker:
     <<: *shared
     command: worker
+    deploy:
+      replicas: 4
     depends_on:
       - n8n
+
+  n8n-webhook:
+    <<: *shared
+    command: webhook
+    depends_on:
+      - n8n
+      - n8n-worker
